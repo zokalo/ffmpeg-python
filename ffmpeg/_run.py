@@ -22,6 +22,9 @@ from .nodes import (
 )
 
 
+VIDEO_FORMATS = ('mp4', )
+
+
 def _get_stream_name(name):
     return '[{}]'.format(name)
 
@@ -90,17 +93,26 @@ def _get_global_args(node):
 
 
 def _get_output_args(node, stream_name_map):
+    """
+    At this time multiple mapping into single output is not implemented in ffmpeg-python
+    https://github.com/kkroening/ffmpeg-python/issues/26
+    As result - after "-filter_complex" applying audio channel is lost  :(
+    So we will monkeypatch ffmpeg._run._get_output_args method to add it manually at this time
+    """
     if node.name != output.__name__:
         raise ValueError('Unsupported output node: {}'.format(node))
     args = []
     assert len(node.incoming_edges) == 1
     edge = node.incoming_edges[0]
     stream_name = stream_name_map[edge.upstream_node, edge.upstream_label]
-    if stream_name != '[0]':
-        args += ['-map', stream_name]
     kwargs = copy.copy(node.kwargs)
     filename = kwargs.pop('filename')
     fmt = kwargs.pop('format', None)
+    if stream_name != '[0]':
+        args += ['-map', stream_name]
+        if fmt in VIDEO_FORMATS:      # only for video formats
+            args += ['-map', '0:a?']  # '?' to make it only if channel 0:a exists
+
     if fmt:
         args += ['-f', fmt]
     args += _convert_kwargs_to_cmd_line_args(kwargs)
