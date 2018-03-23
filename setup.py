@@ -2,15 +2,17 @@ from setuptools import setup
 from textwrap import dedent
 import subprocess
 
-version = '0.1.10'
-download_url = 'https://github.com/kkroening/ffmpeg-python/archive/v{}.zip'.format(version)
+version = '0.1.12'
 
 long_description = dedent("""\
     ffmpeg-python: Python bindings for FFmpeg
     =========================================
+    ffmpeg-python + audio support workaround 
+    (temporary fork, until PR https://github.com/kkroening/ffmpeg-python/pull/45 not merged)
 
     :Github: https://github.com/kkroening/ffmpeg-python
     :API Reference: https://kkroening.github.io/ffmpeg-python/
+    
 """)
 
 
@@ -55,7 +57,7 @@ misc_keywords = [
 keywords = misc_keywords + file_formats
 
 setup(
-    name='ffmpeg-python',
+    name='ffmpeg-python-patched',
     packages=['ffmpeg'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
@@ -63,8 +65,7 @@ setup(
     description='Python bindings for FFmpeg - with support for complex filtering',
     author='Karl Kroening',
     author_email='karlk@kralnet.us',
-    url='https://github.com/kkroening/ffmpeg-python',
-    download_url=download_url,
+    url='https://github.com/zokalo/ffmpeg-python',
     keywords=keywords,
     long_description=long_description,
     install_requires=['future'],
